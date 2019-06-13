@@ -1,8 +1,4 @@
-/**
- * Copyright (c) 2013 JeongHoon Byun aka "Outsider", <http://blog.outsider.ne.kr/>
- * Licensed under the MIT license.
- * <http://outsider.mit-license.org/>
- */
+/*  angular-summernote v0.5.2 | (c) 2014, 2015 JeongHoon Byun | MIT license */
 /* global angular */
 angular.module('summernote', [])
 
@@ -119,9 +115,9 @@ angular.module('summernote', [])
 
     return {
       restrict: 'EA',
-      transclude: true,
+      transclude: 'element',
       replace: true,
-      require: ['summernote', '^?ngModel'],
+      require: ['summernote', '?ngModel'],
       controller: 'SummernoteController',
       scope: {
         summernoteConfig: '=config',
@@ -139,9 +135,14 @@ angular.module('summernote', [])
         imageUpload: '&onImageUpload'
       },
       template: '<div class="summernote"></div>',
-      link: function(scope, element, attrs, ctrls) {
+      link: function(scope, element, attrs, ctrls, transclude) {
         var summernoteController = ctrls[0],
             ngModel = ctrls[1];
+
+        transclude(scope, function(clone, scope) {
+          // to prevent binding to angular scope (It require `tranclude: 'element'`)
+          element.append(clone.html());
+        });
 
         summernoteController.activate(scope, element, ngModel);
       }

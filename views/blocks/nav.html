@@ -3,9 +3,20 @@
     <li class="nav-header hidden-folded">
       <small class="text-muted">Main</small>
     </li>
+
+    <li ui-sref-active="active">
+      <a ui-sref="app.universe">
+        <span class="nav-icon">
+          <i class="material-icons">&#xe5c3;
+            <span ui-include="'../assets/images/i_1.svg'"></span>
+          </i>
+        </span>
+        <span class="nav-text">Cinematic Universe</span>
+      </a>
+    </li>
     
     <li ui-sref-active="active">
-      <a ui-sref="app.dashboard">
+      <a ui-sref="app.movie">
         <span class="nav-icon">
           <i class="material-icons">&#xe3fc;
             <span ui-include="'../assets/images/i_0.svg'"></span>
@@ -16,18 +27,7 @@
     </li>
 
     <li ui-sref-active="active">
-      <a ui-sref="app.dashboard">
-        <span class="nav-icon">
-          <i class="material-icons">&#xe5c3;
-            <span ui-include="'../assets/images/i_1.svg'"></span>
-          </i>
-        </span>
-        <span class="nav-text">Universe</span>
-      </a>
-    </li>
-
-    <li ui-sref-active="active">
-      <a ui-sref="app.dashboard">
+      <a ui-sref="app.actor">
         <span class="nav-icon">
           <i class="material-icons">&#xe8f0;
             <span ui-include="'../assets/images/i_2.svg'"></span>
@@ -38,7 +38,7 @@
     </li>
 
     <li ui-sref-active="active">
-      <a ui-sref="app.dashboard">
+      <a ui-sref="app.article">
         <span class="nav-icon">
           <i class="material-icons">&#xe8d2;
             <span ui-include="'../assets/images/i_3.svg'"></span>

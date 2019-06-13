@@ -119,9 +119,9 @@
               name: 'dataTable',
               module: false,
               files: [
-                  '../libs/jquery/datatables/media/js/jquery.dataTables.min.js',
-                  '../libs/jquery/plugins/integration/bootstrap/3/dataTables.bootstrap.js',
-                  '../libs/jquery/plugins/integration/bootstrap/3/dataTables.bootstrap.css'
+                '../libs/jquery/plugins/integration/bootstrap/3/dataTables.bootstrap.css',
+                '../libs/jquery/plugins/integration/bootstrap/3/dataTables.bootstrap.min.js',
+                '../libs/jquery/datatables/media/js/angular-datatables.min.js',
               ]
           },
           {
@@ -207,6 +207,14 @@
                   '../libs/js/echarts/build/dist/echarts-all.js',
                   '../libs/js/echarts/build/dist/theme.js',
                   '../libs/js/echarts/build/dist/jquery.echarts.js'
+              ]
+          },
+          {
+              name: 'ui-notification',
+              module: false,
+              files: [
+                  '../libs/angular/angular-ui-notification/angular-ui-notification.css',
+                  '../libs/angular/angular-ui-notification/angular-ui-notification.js'
               ]
           }
         ]

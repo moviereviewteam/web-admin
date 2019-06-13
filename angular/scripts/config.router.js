@@ -12,14 +12,14 @@
       .run(runBlock)
       .config(config);
 
-      runBlock.$inject = ['$rootScope', '$state', '$stateParams'];
-      function runBlock($rootScope,   $state,   $stateParams) {
+      runBlock.$inject = ['$rootScope', '$http', '$state', '$stateParams', '$location', '$localStorage'];
+      function runBlock($rootScope, $http, $state, $stateParams, $location, $localStorage) {
           $rootScope.$state = $state;
           $rootScope.$stateParams = $stateParams;        
       }
 
-      config.$inject =  ['$stateProvider', '$urlRouterProvider', 'MODULE_CONFIG'];
-      function config( $stateProvider,   $urlRouterProvider,   MODULE_CONFIG ) {
+      config.$inject =  ['$stateProvider', '$urlRouterProvider', 'MODULE_CONFIG', '$httpProvider'];
+      function config($stateProvider, $urlRouterProvider, MODULE_CONFIG, $httpProvider) {
         
         var p = getParams('layout'),
             l = p ? p + '.' : '',
@@ -44,6 +44,42 @@
               data : { title: 'Dashboard' },
               controller: "ChartCtrl",
               resolve: load(['scripts/controllers/chart.js'])
+            })
+
+            // Cinematic Universe 
+            .state('app.universe', {
+              url: '/cinematic-universe',
+              templateUrl: '../views/universe/universe.html',
+              data: { title: 'Cinematic Universe Manage' },
+              controller: "UniverseCtrl",
+              resolve: load(['apps/universe/universe.js', 'dataTable', 'ui.select', 'ui-notification'])
+            })
+
+            // Movie 
+            .state('app.movie', {
+              url: '/movie',
+              templateUrl: '../views/movie/movie.html',
+              data: { title: 'Movie Manage' },
+              controller: "MovieCtrl",
+              resolve: load(['apps/movie/movie.js', 'dataTable', 'ui.select', 'ui-notification'])
+            })
+
+            // Actor 
+            .state('app.actor', {
+              url: '/actor',
+              templateUrl: '../views/actor/actor.html',
+              data: { title: 'Actor Manage' },
+              controller: "ActorCtrl",
+              resolve: load(['apps/actor/actor.js', 'dataTable', 'ui.select', 'ui-notification'])
+            })
+
+            // Article 
+            .state('app.article', {
+              url: '/article',
+              templateUrl: '../views/article/article.html',
+              data: { title: 'Article Manage' },
+              controller: "ArticleCtrl",
+              resolve: load(['apps/article/article.js', 'dataTable', 'ui.select', 'ui-notification'])
             })
 
             // applications

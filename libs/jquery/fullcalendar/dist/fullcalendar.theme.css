@@ -137,7 +137,3 @@
 .fc-time-grid .fc-event:hover{
   z-index: 1000 !important;
 }
-
-.fc-scroller{
-  -webkit-overflow-scrolling: touch;
-}

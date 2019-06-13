@@ -1,8 +1,8 @@
 /*!
- * Waves v0.7.2
+ * Waves v0.7.6
  * http://fian.my.id/Waves
  *
- * Copyright 2014 Alfiana E. Sibuea and other contributors
+ * Copyright 2014-2018 Alfiana E. Sibuea and other contributors
  * Released under the MIT license
  * https://github.com/fians/Waves/blob/master/LICENSE
  */
@@ -14,7 +14,8 @@
     // to root via `this`.
     if (typeof define === 'function' && define.amd) {
         define([], function() {
-            return factory.apply(window);
+            window.Waves = factory.call(window);
+            return window.Waves;
         });
     }
 
@@ -60,7 +61,7 @@
 
         if (stringRepr === '[object String]') {
             return $$(nodes);
-        } else if (isObject(nodes) && /^\[object (HTMLCollection|NodeList|Object)\]$/.test(stringRepr) && nodes.hasOwnProperty('length')) {
+        } else if (isObject(nodes) && /^\[object (Array|HTMLCollection|NodeList|Object)\]$/.test(stringRepr) && nodes.hasOwnProperty('length')) {
             return nodes;
         } else if (isDOMNode(nodes)) {
             return [nodes];
@@ -120,21 +121,29 @@
             ripple.className = 'waves-ripple waves-rippling';
             element.appendChild(ripple);
 
-            // Get click coordinate and element witdh
+            // Get click coordinate and element width
             var pos       = offset(element);
-            var relativeY = (e.pageY - pos.top);
-            var relativeX = (e.pageX - pos.left);
+            var relativeY = 0;
+            var relativeX = 0;
+            // Support for touch devices
+            if('touches' in e && e.touches.length) {
+                relativeY   = (e.touches[0].pageY - pos.top);
+                relativeX   = (e.touches[0].pageX - pos.left);
+            }
+            //Normal case
+            else {
+                relativeY   = (e.pageY - pos.top);
+                relativeX   = (e.pageX - pos.left);
+            }
+            // Support for synthetic events
+            relativeX = relativeX >= 0 ? relativeX : 0;
+            relativeY = relativeY >= 0 ? relativeY : 0;
+
             var scale     = 'scale(' + ((element.clientWidth / 100) * 3) + ')';
             var translate = 'translate(0,0)';
 
             if (velocity) {
                 translate = 'translate(' + (velocity.x) + 'px, ' + (velocity.y) + 'px)';
-            }
-
-            // Support for touch devices
-            if ('touches' in e && e.touches.length) {
-                relativeY = (e.touches[0].pageY - pos.top);
-                relativeX = (e.touches[0].pageX - pos.left);
             }
 
             // Attach data to element
@@ -179,18 +188,26 @@
             for (var i = 0, len = ripples.length; i < len; i++) {
                 removeRipple(e, element, ripples[i]);
             }
+
+            if (isTouchAvailable) {
+                element.removeEventListener('touchend', Effect.hide);
+                element.removeEventListener('touchcancel', Effect.hide);
+            }
+
+            element.removeEventListener('mouseup', Effect.hide);
+            element.removeEventListener('mouseleave', Effect.hide);
         }
     };
-    
+
     /**
      * Collection of wrapper for HTML element that only have single tag
      * like <input> and <img>
      */
     var TagWrapper = {
-        
+
         // Wrap <input> tag so it can perform the effect
         input: function(element) {
-            
+
             var parent = element.parentNode;
 
             // If input already have parent just pass through
@@ -214,12 +231,12 @@
 
             wrapper.setAttribute('style', 'color:' + color + ';background:' + backgroundColor);
             element.setAttribute('style', 'background-color:rgba(0,0,0,0);');
-            
+
         },
-        
+
         // Wrap <img> tag so it can perform the effect
         img: function(element) {
-            
+
             var parent = element.parentNode;
 
             // If input already have parent just pass through
@@ -231,7 +248,7 @@
             var wrapper  = document.createElement('i');
             parent.replaceChild(wrapper, element);
             wrapper.appendChild(element);
-            
+
         }
     };
 
@@ -240,7 +257,7 @@
      * a separate function to pass the JSLint...
      */
     function removeRipple(e, el, ripple) {
-        
+
         // Check if the ripple still exist
         if (!ripple) {
             return;
@@ -355,8 +372,8 @@
         var element = null;
         var target = e.target || e.srcElement;
 
-        while (target.parentElement !== null) {
-            if (target.classList.contains('waves-effect') && (!(target instanceof SVGElement))) {
+        while (target.parentElement) {
+            if ( (!(target instanceof SVGElement)) && target.classList.contains('waves-effect')) {
                 element = target;
                 break;
             }
@@ -371,11 +388,22 @@
      */
     function showEffect(e) {
 
-        TouchHandler.registerEvent(e);
+        // Disable effect if element has "disabled" property on it
+        // In some cases, the event is not triggered by the current element
+        // if (e.target.getAttribute('disabled') !== null) {
+        //     return;
+        // }
 
         var element = getWavesEffectElement(e);
 
         if (element !== null) {
+
+            // Make it sure the element has either disabled property, disabled attribute or 'disabled' class
+            if (element.disabled || element.getAttribute('disabled') || element.classList.contains('disabled')) {
+                return;
+            }
+
+            TouchHandler.registerEvent(e);
 
             if (e.type === 'touchstart' && Effect.delay) {
 
@@ -398,6 +426,8 @@
                         hidden = true;
                         Effect.hide(hideEvent, element);
                     }
+
+                    removeListeners();
                 };
 
                 var touchMove = function(moveEvent) {
@@ -406,12 +436,19 @@
                         timer = null;
                     }
                     hideEffect(moveEvent);
+
+                    removeListeners();
                 };
 
                 element.addEventListener('touchmove', touchMove, false);
                 element.addEventListener('touchend', hideEffect, false);
                 element.addEventListener('touchcancel', hideEffect, false);
 
+                var removeListeners = function() {
+                    element.removeEventListener('touchmove', touchMove);
+                    element.removeEventListener('touchend', hideEffect);
+                    element.removeEventListener('touchcancel', hideEffect);
+                };
             } else {
 
                 Effect.show(e, element);
@@ -456,7 +493,7 @@
      * or skimming effect should be applied to the elements.
      */
     Waves.attach = function(elements, classes) {
-        
+
         elements = getWavesElements(elements);
 
         if (toString.call(classes) === '[object Array]') {
@@ -466,18 +503,20 @@
         classes = classes ? ' ' + classes : '';
 
         var element, tagName;
-        
+
         for (var i = 0, len = elements.length; i < len; i++) {
-            
+
             element = elements[i];
             tagName = element.tagName.toLowerCase();
-            
+
             if (['input', 'img'].indexOf(tagName) !== -1) {
                 TagWrapper[tagName](element);
                 element = element.parentElement;
             }
 
-            element.className += ' waves-effect' + classes;
+            if (element.className.indexOf('waves-effect') === -1) {
+                element.className += ' waves-effect' + classes;
+            }
         }
     };
 
